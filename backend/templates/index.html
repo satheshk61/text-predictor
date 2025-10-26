@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>AI Text Predictor - Free Image to Text Converter</title>
+    <meta name="description" content="Use our free AI-powered tool to instantly extract text from any image. Upload a file or use your camera for fast, accurate OCR results.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #010409;
+            --card-bg: rgba(16, 21, 32, 0.7);
+            --border-color: rgba(67, 76, 94, 0.5);
+            --aurora-teal: #00f5d4;
+            --aurora-magenta: #9b5de5;
+            --aurora-blue: #00bbf9;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-error: #ff8a80;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column; /* Allow footer/article to sit below card */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            overflow: auto; 
+        }
+
+        .aurora-background {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden; 
+        }
+
+        .aurora-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.5;
+            animation: bubbleUp 20s infinite linear;
+        }
+
+        .aurora-shape1 {
+            width: 400px;
+            height: 400px;
+            background-color: var(--aurora-magenta);
+            top: 80vh; 
+            left: 10vw;
+            animation-duration: 22s;
+            animation-delay: 0s;
+        }
+
+        .aurora-shape2 {
+            width: 350px;
+            height: 350px;
+            background-color: var(--aurora-teal);
+            top: 90vh;
+            left: 70vw;
+            animation-duration: 25s;
+            animation-delay: -5s;
+        }
+
+        .aurora-shape3 {
+            width: 300px;
+            height: 300px;
+            background-color: var(--aurora-blue);
+            top: 100vh;
+            left: 40vw;
+            animation-duration: 18s;
+            animation-delay: -10s;
+        }
+
+        @keyframes bubbleUp {
+            0% { transform: translateY(0) translateX(0); opacity: 0.5; }
+            50% { transform: translateY(-60vh) translateX(20px); opacity: 0.7; }
+            100% { transform: translateY(-120vh) translateX(-20px); opacity: 0; }
+        }
+
+        /* --- Card & Spacing --- */
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem 3rem;
+            backdrop-filter: blur(25px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            animation: fadeIn 1s ease-out;
+            text-align: center;
+            margin: 2rem 0; 
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        h1 .logo-accent {
+            display: inline-block;
+            animation: bounce-logo 3s infinite ease-in-out;
+        }
+        
+        @keyframes bounce-logo {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        h2 {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left; /* Align all section headers left */
+        }
+        
+        .card > p { /* Target only the main <p> */
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+        
+        /* Section Separator */
+        .card-section {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* --- Enhanced Drop Zone --- */
+        .drop-zone {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 180px;
+            padding: 25px;
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            background-color: rgba(16, 21, 32, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden; /* For glow effect */
+        }
+
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(90deg, var(--aurora-teal), var(--aurora-blue));
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.3;
+            animation: pulse-glow 4s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.02); }
+        }
+
+        .drop-zone:hover {
+            border-color: var(--aurora-teal);
+            background-color: rgba(16, 21, 32, 0.6);
+        }
+
+        .drop-zone.is-dragging {
+            background-color: rgba(0, 245, 212, 0.1);
+            border-style: solid;
+            border-color: var(--aurora-teal);
+            box-shadow: 0 0 25px rgba(0, 245, 212, 0.5);
+        }
+
+        .drop-zone.is-dragging .drop-zone-content {
+            transform: scale(1.05); /* Pop content */
+        }
+
+        .drop-zone-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            transition: transform 0.3s ease;
+            pointer-events: none; /* Allows click to pass to label */
+        }
+
+        .upload-icon {
+            width: 50px;
+            height: 50px;
+            color: var(--aurora-blue);
+            animation: bounce-icon 2.5s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        @keyframes bounce-icon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        #drop-zone-text {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        /* --- Buttons --- */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 5px; 
+            font-family: inherit; 
+        }
+        
+        /* Button with icon */
+        button .icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Primary Button (Predict/Capture) */
+        button:not(.secondary) {
+            background: linear-gradient(90deg, var(--aurora-teal), var(--aurora-blue));
+            background-size: 200% 100%;
+            color: var(--bg-color);
+            transition: background-position 0.4s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        button:not(.secondary):hover:not(:disabled) {
+            background-position: 100% 0;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 245, 212, 0.4);
+        }
+        
+        button:not(.secondary):active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 245, 212, 0.2);
+        }
+        
+        button:not(.secondary):disabled {
+            background: var(--border-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Secondary Button (Camera/Cancel) */
+        button.secondary {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        
+        button.secondary:hover {
+            border-color: var(--aurora-teal);
+            color: var(--aurora-teal);
+            box-shadow: 0 0 15px rgba(0, 245, 212, 0.2);
+        }
+        
+        /* --- Loader Spinner --- */
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 0, 0, 0.2);
+            border-top-color: var(--bg-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* --- Skeleton Loader --- */
+        .skeleton-loader {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .skeleton-line {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(90deg, var(--border-color), rgba(67, 76, 94, 0.3), var(--border-color));
+            background-size: 200% 100%;
+            border-radius: 4px;
+            animation: skeleton-shine 1.5s infinite linear;
+        }
+        .skeleton-line.short {
+            width: 60%;
+        }
+        @keyframes skeleton-shine {
+            from { background-position: 200% 0; }
+            to { background-position: -200% 0; }
+        }
+
+        /* --- Image Preview Section (for CLS) --- */
+        #preview-section {
+            text-align: left;
+        }
+        
+        /* This is the placeholder that reserves space */
+        #image-skeleton-loader {
+            width: 100%;
+            height: 250px; /* Default height */
+            border-radius: 12px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 2px dashed var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        #image-skeleton-loader .icon {
+            width: 40px;
+            height: 40px;
+            opacity: 0.5;
+        }
+        
+        #imagePreview {
+            width: 100%; /* Make preview responsive */
+            max-height: 400px;
+            margin-top: 10px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.2);
+            object-fit: contain;
+            padding: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* --- Enhanced Prediction Area --- */
+        .prediction-area {
+            text-align: left;
+        }
+
+        .prediction-box {
+            position: relative;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            min-height: 100px; /* Reserves space */
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Result Text */
+        #prediction-text {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            word-break: break-word; 
+            line-height: 1.6;
+        }
+
+        #confidence-text {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        /* Error Text Styling */
+        #prediction-text.is-error {
+            color: var(--text-error);
+            font-weight: 600;
+        }
+        
+        /* Copy Button */
+        #copy-result-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            margin: 0;
+            background: var(--border-color);
+            color: var(--text-primary);
+            border: none;
+            box-shadow: none;
+            opacity: 0.5;
+            transition: opacity 0.3s, background 0.3s;
+        }
+        #copy-result-btn:hover {
+            opacity: 1;
+            background: var(--aurora-teal);
+            color: var(--bg-color);
+        }
+        #copy-result-btn .icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        /* --- History Section --- */
+        #history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .history-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            background-color: #000;
+            flex-shrink: 0;
+        }
+        
+        .history-item-details {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .history-item-text {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            word-break: break-word; 
+            margin-bottom: 0.25rem; /* Space between text and meta */
+        }
+        
+        .history-item-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .history-empty {
+            color: var(--text-secondary);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        #clear-history-btn {
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            margin-top: 1rem; /* Give it space from the list */
+            width: 100%; /* Make button full width */
+        }
+
+        #clear-history-btn:hover {
+            color: var(--text-error);
+            border-color: var(--text-error);
+            box-shadow: 0 0 15px rgba(255, 138, 128, 0.2);
+        }
+
+        /* --- NEW: Team Details Section --- */
+        .team-details {
+            text-align: left;
+        }
+        .team-grid {
+            display: grid;
+            /* Create 2 columns on wider screens */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem; /* Slightly smaller gap */
+        }
+        .team-member {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 1.25rem; /* Slightly smaller padding */
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        .team-member:hover {
+            border-color: var(--aurora-blue);
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 187, 249, 0.2);
+        }
+        .team-member h3 {
+            font-size: 1.1rem; /* Slightly smaller */
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem; /* Tighter spacing */
+        }
+        .team-member p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0; /* Override default p margin */
+        }
+
+        /* --- Modal Styles --- */
+        .hidden {
+            display: none !important;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto; 
+            padding: 2rem 0; 
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+        }
+        
+        .modal-content h3 {
+            color: var(--text-primary);
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        #video-feed {
+            width: 100%;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            background-color: #000;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap; 
+        }
+
+        /* --- Crawlable Content Section --- */
+        .article-content {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            text-align: left;
+            line-height: 1.7;
+        }
+        .article-content h2 {
+            font-size: 1.5rem;
+            color: var(--aurora-teal);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .article-content p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        .article-content strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .article-content ul {
+            list-style-position: inside;
+            padding-left: 1rem;
+        }
+        .article-content li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* --- Footer --- */
+        .site-footer {
+            width: 100%;
+            text-align: center;
+            padding: 1rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        
+        .site-footer a {
+            color: var(--aurora-teal);
+            text-decoration: none;
+        }
+        .site-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- General Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-text-animate {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="aurora-background">
+        <div class="aurora-shape aurora-shape1"></div>
+        <div class="aurora-shape aurora-shape2"></div>
+        <div class="aurora-shape aurora-shape3"></div>
+    </div>
+
+    <main class="card">
+        <h1><span class="logo-accent">🧠</span> AI Text Predictor</h1>
+        <p>Upload an image or use your camera to extract text!</p>
+
+        <label for="file-input" id="drop-zone" class="drop-zone">
+            <input type="file" id="file-input" accept="image/*" class="hidden">
+            <div class="drop-zone-content">
+                <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
+                <span id="drop-zone-text">Drag & drop image, or click to browse</span>
+            </div>
+        </label>
+        
+        <div class="button-container">
+            <button id="predict-btn">
+                <span class="btn-text">Predict from File</span>
+                <span class="loader hidden"></span>
+            </button>
+            <button id="camera-btn" class="secondary">Use Camera</button>
+        </div>
+
+        <section id="preview-section" class="card-section">
+            <h2>Image Preview</h2>
+            <div id="image-skeleton-loader">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4zM11 20H5.5V14l1.41 1.41 2.12-2.12 1.41 1.41L8.32 17H11v3zm1-13H7V5h5v2zm7 11.5-2.01-2.01-1.41 1.41-2.12-2.12-1.41 1.41L12.16 17H9v-3h5.5v5.5H19v-2.12zM17 7H12V5h5v2z"></path></svg>
+                <span>Image preview will appear here</span>
+            </div>
+            <img id="imagePreview" alt="Image preview" class="hidden" />
+        </section>
+
+        <section id="prediction-section" class="card-section hidden">
+            <h2>Prediction</h2>
+            <div class="prediction-box">
+                <div id="skeleton-loader" class="skeleton-loader hidden">
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line short"></div>
+                </div>
+                
+                <div id="result-content" class="hidden">
+                    <button id="copy-result-btn" title="Copy to clipboard">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></svg>
+                    </button>
+                    <span id="prediction-text"></span>
+                    <span id="confidence-text"></span>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="card-section">
+            <h2>Prediction History</h2>
+            <div id="history-list">
+                </div>
+            <button id="clear-history-btn" class="secondary">Clear History</button>
+        </section>
+    </main>
+
+    <article class="article-content">
+        <h2>About Our Free AI Image to Text Converter</h2>
+        <p>This tool uses advanced <strong>Optical Character Recognition (OCR)</strong> technology to extract text from images. Whether you have a scanned document, a photo of a sign, or a screenshot, our AI can read the text and convert it into a copyable, digital format.</p>
+        
+        <h3>How It Works</h3>
+        <p>Using the tool is simple:</p>
+        <ul>
+            <li><strong>Upload:</strong> Drag & drop a file, or click to browse for a JPG, PNG, or other image file.</li>
+            <li><strong>Camera:</strong> Use your phone's camera to snap a picture of text in the real world.</li>
+            <li><strong>Extract:</strong> Our AI processes the image, identifies the characters, and provides the extracted text in seconds.</li>
+        </ul>
+        <p>This <strong>free image-to-text converter</strong> is perfect for students, professionals, and anyone who needs to digitize notes, receipts, or book pages quickly.</p>
+    </article>
+
+    <div id="camera-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>Position text clearly in the frame</h3>
+            <video id="video-feed" playsinline></video>
+            <div class="modal-actions">
+                <button id="capture-btn">Capture & Predict</button>
+                <button id="close-modal-btn" type="button" class="secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="hidden-canvas" style="display:none;"></canvas>
+ <section class="card-section team-details">
+            <h2>Our Team</h2>
+            <div class="team-grid">
+                      <div class="team-member">
+                    <h3>Thiruvengadam</h3>
+                    <p>Concept Designer & Data Engineer</p>
+                </div>
+                <div class="team-member">
+                    <h3>Nazeea</h3>
+                    <p>Frontend Designer</p>
+                </div>
+                <div class="team-member">
+                    <h3>Sathesh</h3>
+                    <p>Team Lead & ML Trainer</p>
+                </div>
+                  <div class="team-member">
+                    <h3>Indhumathi</h3>
+                    <p>Tester and Concept Designer</p>
+                </div>
+                   <div class="team-member">
+                    <h3>Mohamed Farhan</h3>
+                    <p>Integrating & Hosting</p>
+                </div>   
+            </div>
+        </section>
+    <footer class="site-footer">
+      copyright &copy; 2024 AI Text Predictor. All rights reserved.
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- Global element variables ---
+        let currentStream = null;
+        let selectedFile = null;
+        
+        // Main App
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const dropZoneText = document.getElementById('drop-zone-text');
+        const predictBtn = document.getElementById('predict-btn');
+        const cameraBtn = document.getElementById('camera-btn');
+        
+        // Preview Section
+        const previewSection = document.getElementById('preview-section');
+        const imagePreview = document.getElementById("imagePreview");
+        const imageSkeleton = document.getElementById("image-skeleton-loader");
+        
+        // Prediction Section
+        const predictionSection = document.getElementById('prediction-section');
+        const resultDisplay = document.getElementById('result-content');
+        const skeletonLoader = document.getElementById('skeleton-loader');
+        const predictionText = document.getElementById('prediction-text');
+        const confidenceText = document.getElementById('confidence-text');
+        const copyResultBtn = document.getElementById('copy-result-btn');
+
+        // Camera Modal
+        const video = document.getElementById('video-feed');
+        const modal = document.getElementById('camera-modal');
+        const captureBtn = document.getElementById('capture-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        
+        // History
+        const historyList = document.getElementById("history-list");
+        const clearHistoryBtn = document.getElementById("clear-history-btn");
+        const historyKey = 'textPredictionHistory';
+        const maxHistoryItems = 10;
+        
+        // Hidden Canvas
+        const hiddenCanvas = document.getElementById('hidden-canvas');
+
+        // --- Initial State Setup ---
+        predictBtn.disabled = true;
+        predictionSection.classList.add('hidden'); // Hide prediction section initially
+        loadHistory();
+        
+        // --- Drop Zone Event Listeners ---
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                handleFile(fileInput.files[0]);
+            }
+        });
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('is-dragging'); });
+        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('is-dragging'); });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('is-dragging');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                fileInput.files = files; 
+                handleFile(files[0]);
+            } else {
+                alert("Please drop an image file (e.g., .png, .jpg).");
+            }
+        });
+
+        // --- Button Event Listeners ---
+        predictBtn.addEventListener('click', predictFromFile);
+        cameraBtn.addEventListener('click', startCamera);
+        captureBtn.addEventListener('click', captureAndPredict);
+        closeModalBtn.addEventListener('click', stopCamera);
+        clearHistoryBtn.addEventListener('click', clearHistory);
+        copyResultBtn.addEventListener('click', copyResultToClipboard);
+        
+        // --- Core Functions ---
+
+        /**
+         * Handles a new file (from drop or click)
+         */
+        function handleFile(file) {
+            selectedFile = file;
+            dropZoneText.textContent = file.name;
+            predictBtn.disabled = false;
+            
+            // Show image preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imageSkeleton.classList.add('hidden'); // Hide skeleton
+                imagePreview.classList.remove('hidden'); // Show image
+                predictionSection.classList.add('hidden'); // Hide old results
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Resets the file input and preview state.
+         */
+        function resetFileInput() {
+            selectedFile = null;
+            fileInput.value = "";
+            predictBtn.disabled = true;
+            dropZoneText.textContent = "Drag & drop image, or click to browse";
+            imageSkeleton.classList.remove('hidden'); // Show skeleton
+            imagePreview.classList.add('hidden'); // Hide image
+            imagePreview.src = "";
+            predictionSection.classList.add('hidden');
+        }
+
+        /**
+         * Toggles the loading spinner on the predict button
+         */
+        function toggleLoading(isLoading) {
+            const btnText = predictBtn.querySelector('.btn-text');
+            const loader = predictBtn.querySelector('.loader');
+
+            if (isLoading) {
+                predictBtn.disabled = true;
+                btnText.classList.add('hidden');
+                loader.classList.remove('hidden');
+            } else {
+                predictBtn.disabled = !selectedFile; 
+                btnText.classList.remove('hidden');
+                loader.classList.add('hidden');
+            }
+        }
+        
+        async function predictFromFile() {
+            if (!selectedFile) {
+                alert("Please select an image first!");
+                return;
+            }
+            const formData = new FormData();
+            formData.append("image", selectedFile);
+            
+            await sendImageForPrediction(formData);
+        }
+        
+        async function startCamera() {
+            resetFileInput(); // Clear file state
+            
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = currentStream;
+                await video.play();
+                modal.classList.remove('hidden');
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+                alert("Could not access camera. Please ensure permissions are granted and you are on a secure (HTTPS) connection.");
+            }
+        }
+
+        function stopCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            modal.classList.add('hidden');
+        }
+
+        /**
+         * Captures a frame, shows preview, and sends for prediction
+         */
+        async function captureAndPredict() {
+            if (video.readyState < video.HAVE_METADATA) {
+                await new Promise(resolve => video.addEventListener('loadedmetadata', resolve, { once: true }));
+            }
+
+            const context = hiddenCanvas.getContext('2d');
+            hiddenCanvas.width = video.videoWidth;
+            hiddenCanvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            
+            const dataUrl = hiddenCanvas.toDataURL('image/jpeg', 0.9);
+            imagePreview.src = dataUrl;
+            imageSkeleton.classList.add('hidden'); // Hide skeleton
+            imagePreview.classList.remove('hidden'); // Show image
+            
+            stopCamera();
+
+            hiddenCanvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append("image", blob, "camera-capture.jpg");
+                
+                // Manually set loading state
+                predictBtn.disabled = true;
+                predictBtn.querySelector('.btn-text').classList.add('hidden');
+                predictBtn.querySelector('.loader').classList.remove('hidden');
+
+                await sendImageForPrediction(formData);
+
+                // Manually unset loading state
+                predictBtn.disabled = true; // Still disabled, as no file is selected
+                predictBtn.querySelector('.btn-text').classList.remove('hidden');
+                predictBtn.querySelector('.loader').classList.add('hidden');
+
+            }, 'image/jpeg', 0.9);
+        }
+        
+        /**
+         * Shows the prediction area with a skeleton loader
+         */
+        function showLoadingState() {
+            predictionSection.classList.remove('hidden');
+            skeletonLoader.classList.remove('hidden');
+            resultDisplay.classList.add('hidden');
+            predictionText.classList.remove('is-error');
+        }
+        
+        /**
+         * Shows the final prediction result
+         */
+        function showResult(text, confidence = null, isError = false) {
+            skeletonLoader.classList.add('hidden');
+            resultDisplay.classList.remove('hidden');
+            resultDisplay.classList.add('result-text-animate');
+            
+            predictionText.innerText = text;
+            predictionText.classList.toggle('is-error', isError);
+
+            if (confidence && !isError) {
+                confidenceText.innerText = `Confidence: ${(confidence * 100).toFixed(1)}%`;
+                confidenceText.classList.remove('hidden');
+            } else {
+                confidenceText.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Sends FormData (from file or blob) to the backend
+         */
+        async function sendImageForPrediction(formData) {
+            if(selectedFile) toggleLoading(true);
+            showLoadingState();
+
+            try {
+                // --- MOCKUP: Simulate a 2-second API call ---
+                // await new Promise(resolve => setTimeout(resolve, 2000));
+                // const data = {
+                //     prediction: "This is a test prediction from the frontend.",
+                //     confidence: 0.95
+                // };
+                // --- END MOCKUP ---
+                
+                // --- REAL API CALL ---
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server error: ${response.status} - ${errorText}`);
+                }
+                const data = await response.json();
+                // --- END REAL API CALL ---
+
+                const prediction = data.prediction || "No text found.";
+                const confidence = data.confidence || null; // Your backend should send this
+                
+                showResult(prediction, confidence);
+                saveToHistory(prediction, imagePreview.src);
+
+            } catch (error) {
+                console.error(error);
+                showResult("❌ Error: " + error.message, null, true);
+            } finally {
+                if(selectedFile) toggleLoading(false);
+            }
+        }
+        
+        /**
+         * Copies the prediction text to the clipboard
+         */
+        function copyResultToClipboard() {
+            const text = predictionText.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const copyButton = document.getElementById('copy-result-btn');
+                copyButton.title = "Copied!";
+                setTimeout(() => { copyButton.title = "Copy to clipboard"; }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+
+        // --- History Functions ---
+
+        function loadHistory() {
+            renderHistory();
+        }
+        
+        function formatTimeAgo(isoTimestamp) {
+            const date = new Date(isoTimestamp);
+            const now = new Date();
+            const seconds = Math.round((now - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.round(seconds / 60);
+            if (minutes < 60) return `${minutes} min ago`;
+            const hours = Math.round(minutes / 60);
+            if (hours < 24) return `${hours} hr ago`;
+            const days = Math.round(hours / 24);
+            return `${days} day(s) ago`;
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem(historyKey)) || [];
+            if (history.length === 0) {
+                historyList.innerHTML = `<p class="history-empty">No prediction history found.</p>`;
+                return;
+            }
+
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <img src="${item.imageSrc}" alt="History preview">
+                    <div class="history-item-details">
+                        <p class="history-item-text">${item.prediction}</p>
+                        <p class="history-item-meta">${formatTimeAgo(item.timestamp)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveToHistory(prediction, imageSrc) {
+            const history = JSON.parse(localStorage.getItem(historyKey)) || [];
+            
+            const newEntry = {
+                prediction: prediction,
+                imageSrc: imageSrc, // This is a dataURL
+                timestamp: new Date().toISOString()
+            };
+
+            history.unshift(newEntry);
+            const trimmedHistory = history.slice(0, maxHistoryItems);
+            localStorage.setItem(historyKey, JSON.stringify(trimmedHistory));
+            renderHistory();
+        }
+
+        function clearHistory() {
+            if (confirm("Are you sure you want to clear all prediction history?")) {
+                localStorage.removeItem(historyKey);
+                renderHistory(); // Re-render to show the empty state
+            }
+        }
+        
+    }); // End of DOMContentLoaded
+    </script>
+</body>
+</html>
